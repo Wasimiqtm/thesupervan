@@ -10,7 +10,7 @@
 
 @section('content')
     @php
-        
+
         $cart = @$order->cart;
         $user = @$cart->user_details;
         $cart_details = @$cart->cart_details;
@@ -19,12 +19,12 @@
         if ($order->updated_columns) {
             $updateData = collect(json_decode($order->updated_columns, true));
         }
-        
+
         $total_text = 'Due';
         if ($cart->payment_status == 'complete') {
             $total_text = 'Paid';
         }
-        
+
         $currency = getDefaultCurrency();
         $currency_code = @$currency->code;
         $subtotal = 0;
@@ -51,7 +51,11 @@
                     <section class="panel">
                         <!--<a id='printMe'  onclick="printDiv('printData');" style="padding: 10px;float: right;font-size: large;cursor: pointer">-->
                         <a href="{{ url('admin/admin-order-quotation-print/' . Hashids::encode($order->id)) }}"
-                            target="_blank" style="padding: 10px;float: right;font-size: large;cursor: pointer">
+                            target="_blank" style="padding: 10px;float: right;font-size: large;cursor: pointer" title="Print Invoice">
+                            <i class="fa fa-print"></i>
+                        </a>
+                        <a href="{{ url('admin/admin-order-quotation-print/' . Hashids::encode($order->id)). '/view' }}"
+                           target="_blank" style="padding: 10px;float: right;font-size: large;cursor: pointer" title="View Invoice">
                             <i class="fa fa-print"></i>
                         </a>
                         <div class="panel-body invoice" id="printData">
@@ -119,9 +123,9 @@
                                         @foreach ($cart_details as $single_item)
                                             @php
                                                 $single_item = (array) $single_item;
-                                                
+
                                                 $unit_price = $single_item['price'];
-                                                
+
                                                 $item_sub_total = $unit_price * $single_item['quantity'];
                                                 $subtotal = $subtotal + $item_sub_total;
                                                 $item_discount = @$single_item['item_discount'] ? $single_item['item_discount'] : 0;
@@ -137,7 +141,7 @@
                                                 $pId = $single_item['id'];
                                                 $price = numberFormatToFloat($price);
                                                  $price_options = $single_item['price_options']??'';
-                                                
+
                                             @endphp
                                             <tr>
                                                 <td>{{ $loop->iteration }}</td>
@@ -150,13 +154,13 @@
                                                        <select class="form-control price_option"  name="products[{{ $pId }}][price_options]">
                                                            @foreach(['Standard Price'=> 'Standard Price' ,
  'Price Matched On Request' =>'Price Matched On Request',
-  'Reduced To Clear Price'=>'Reduced To Clear Price', 
+  'Reduced To Clear Price'=>'Reduced To Clear Price',
 	'Promotional Offer Price' => 'Promotional Offer Price'] as $value)
 	                                    <option value="{{$value}}" {{$price_options=== $value?'selected':''}}>{{$value}}</option>
 	                                @endforeach
-                                                           
+
                                                        </select>
-                                                     
+
                                                 </td>
                                                 <td class="text-center">{{ $currency_code }}
                                                     <input type="number" step="any" min="0"
@@ -185,12 +189,12 @@
                                             $payment_method = @$trans_details['payer'];
                                             $payment_status = 'Pending';
                                             $payment_class = 'label-danger';
-                                            
+
                                             if ($cart->payment_status == 'complete') {
                                                 $payment_status = 'Paid';
                                                 $payment_class = 'label-success';
                                             }
-                                            
+
                                             $tax = $order->tax;
                                         @endphp
 
@@ -252,13 +256,13 @@
 
                                         @php
                                             $vat = $tax;
-                                            
+
                                             $price = $amount - $vat;
                                             $vatRate = 0;
                                             if ($amount > 0) {
                                                 $vatRate = ($vat / $amount) * 100;
                                             }
-                                            
+
                                         @endphp
                                         <tr>
                                             <td class="text-center"> {{ getVatName() }} </td>

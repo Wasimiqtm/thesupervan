@@ -153,7 +153,7 @@
         //dd($user);
         $cart_details = @$cart->cart_details;
         $trans_details = @$order->trans_details;
-        
+
         $total_text = 'Due';
         if ($cart->payment_status == 'complete') {
             $total_text = 'Paid';
@@ -176,7 +176,7 @@
     foreach ($cart_details as $single_item) {
         $single_item = (array) $single_item;
         $unit_price = $single_item['price'];
-    
+
         $item_discount = @$single_item['item_discount'] ? $single_item['item_discount'] : 0;
         //$item_sub_total = $item_sub_total - $item_discount;
         $productName = $single_item['name'];
@@ -186,29 +186,29 @@
             $productName = $dataRecieve['name'];
             $price = $dataRecieve['price'];
         }
-    
+
         $vatRate = 20;
         if (@$single_item['exclude_include_vat'] == 'ex') {
             $add = 1.2;
-    
+
             $exVatPrice = $price;
-    
+
             $unit_price = $price = $single_item['price'] * $add;
             $vat = $unit_price * (20 / 120);
         } else {
             $exVatPrice = $price - ($price * $vatRate) / 120;
             $price = number_format($unit_price, 2);
         }
-    
+
         $item_sub_total = $unit_price * $single_item['quantity'];
         $subtotal = $subtotal + $item_sub_total;
         $netTotal = $item_sub_total - ($item_sub_total * $vatRate) / 120;
-    
+
         $subTotatExVat = $subTotatExVat + $netTotal;
         $subTotatIncVat = $subTotatIncVat + $item_sub_total;
         $totalVat = $subTotatIncVat - $subTotatExVat;
     }
-    
+
     ?>
 
 
@@ -289,17 +289,19 @@
                                         </div>
                                         <hr>
                                         <div style="padding-bottom: 35px;margin-top: -5px;">
-                                            <div class="col-md-6 col-sm-6">
-                                                <div class="pull-right">
-                                                    <h4>Total To-Pay:</h4>
+                                            @if($view)
+                                                <div class="col-md-6 col-sm-6">
+                                                    <div class="pull-right">
+                                                        <h4>Total To-Pay:</h4>
+                                                    </div>
                                                 </div>
-                                            </div>
-                                            <div class="col-md-6 col-sm-6">
-                                                <h2>
-                                                    {{-- {{ $currency_code }}{{ number_format($subTotatIncVat, 2) }} --}}
-                                                    {{ getWalletAndOrderAmount($order->user_id, 0) }}
-                                                </h2>
-                                            </div>
+                                                <div class="col-md-6 col-sm-6">
+                                                    <h2>
+                                                        {{-- {{ $currency_code }}{{ number_format($subTotatIncVat, 2) }} --}}
+                                                        {{ getWalletAndOrderAmount($order->user_id, 0) }}
+                                                    </h2>
+                                                </div>
+                                            @endif
                                         </div>
                                     </div>
 
@@ -359,7 +361,7 @@
                                         <tr style="background: black;color: white;">
                                             <th>Item No</th>
                                             <th>Item Description</th>
-                                              
+
                                             <th class="text-center">Qty</th>
                                             <th class="text-center">Unit Cost <br /> Ex-VAT</th>
                                             <th class="text-center">VAT <br /> Rate</th>
@@ -381,7 +383,7 @@
                                             @php
                                                 $single_item = (array) $single_item;
                                                 $unit_price = $single_item['price'];
-                                                
+
                                                 $item_discount = @$single_item['item_discount'] ? $single_item['item_discount'] : 0;
                                                 //$item_sub_total = $item_sub_total - $item_discount;
                                                 $productName = $single_item['name'];
@@ -391,24 +393,24 @@
                                                     $productName = $dataRecieve['name'];
                                                     $price = $dataRecieve['price'];
                                                 }
-                                                
+
                                                 $vatRate = 20;
                                                 if (@$single_item['exclude_include_vat'] == 'ex') {
                                                     $add = 1.2;
-                                                
+
                                                     $exVatPrice = $price;
-                                                
+
                                                     $unit_price = $price = $single_item['price'] * $add;
                                                     $vat = $unit_price * (20 / 120);
                                                 } else {
                                                     $exVatPrice = $price - ($price * $vatRate) / 120;
                                                     $price = number_format($unit_price, 2);
                                                 }
-                                                
+
                                                 $item_sub_total = $unit_price * $single_item['quantity'];
                                                 $subtotal = $subtotal + $item_sub_total;
                                                 $netTotal = $item_sub_total - ($item_sub_total * $vatRate) / 120;
-                                                
+
                                                 $subTotatExVat = $subTotatExVat + $netTotal;
                                                 $subTotatIncVat = $subTotatIncVat + $item_sub_total;
                                                 $totalVat = $subTotatIncVat - $subTotatExVat;
@@ -419,7 +421,7 @@
                                                 <td class="invoice">
                                                     <h5>{{ ucwords(strtolower($productName)) }}<strong>{{ $productPrice}}</strong></h5>
                                                 </td>
-                                          
+
                                                 <td class="text-center">{{ $single_item['quantity'] }}</td>
                                                 <td class="text-center">
                                                     {{ $currency_code }}{{ number_format($exVatPrice, 2) }}</td>
@@ -504,23 +506,25 @@
                                 </table>
                             </div>
 
-                            <div class="row col-md-12">
-                                <table class="table paymentTable" style="margin-top: 10px">
-                                    <thead>
+                            @if($view)
+                                <div class="row col-md-12">
+                                    <table class="table paymentTable" style="margin-top: 10px">
+                                        <thead>
                                         <tr>
                                             <th colspan="4" class="text-center">PAYMENT MODE</th>
                                         </tr>
-                                    </thead>
-                                    <tbody>
+                                        </thead>
+                                        <tbody>
                                         <tr>
                                             <th class="text-start">CASH</th>
                                             <th class="text-center">TO-PAY</th>
                                             <th class="text-center">BANK</th>
                                             <th class="text-center">CARD</th>
                                         </tr>
-                                    </tbody>
-                                </table>
-                            </div>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            @endif
                         </div>
                 </div>
         </section>

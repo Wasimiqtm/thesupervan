@@ -43,13 +43,13 @@ Route::group(['namespace' => 'Admin'], function () {
 
     Route::resource('van-store','VanStoreController');
     Route::get('get-van-store-product-row/{barcode?}', 'VanStoreController@getProductRow');
-    
+
     Route::resource('manage-stocks', 'StockController');
     Route::get('get-store-products', 'StockController@getStoreProducts');
-    
+
     Route::resource('shopkeepers', 'ShopkeeperController');
     Route::GET('shopkeeper-orders','ShopkeeperController@orders')->name('shopkeepers.orders');
-    
+
     Route::resource('wholesalers', 'WholesalerController');
     Route::GET('whole-saler-orders','WholesalerController@wholeSalerOrders')->name('whole.saler.orders');
     Route::resource('drop-shipper', 'DropShipperController');
@@ -63,7 +63,7 @@ Route::group(['namespace' => 'Admin'], function () {
 
     Route::post('add-wallet-amount','CustomerController@addWalletAmount')->name('add.wallet.amount');
     Route::post('add-2pay-amount','CustomerController@add2PayAmount')->name('add.2pay.amount');
-    
+
     Route::get('retailer-orders','CustomerController@retailerOrders')->name('retailer.orders');
     Route::resource('variants', 'VariantController');
     Route::resource('suppliers', 'SuppliersController');
@@ -73,7 +73,7 @@ Route::group(['namespace' => 'Admin'], function () {
     Route::resource('currencies', 'CurrencyController');
     Route::resource('tax-rates', 'TaxRatesController');
     Route::resource('sliders', 'SliderController');
-    
+
     Route::resource('expense-types', 'ExpenseTypeController');
     Route::resource('expenses', 'ExpenseController');
 
@@ -132,25 +132,25 @@ Route::group(['namespace' => 'Admin'], function () {
     Route::get('get-product-details/{id}', 'AdminOrderController@getProductDetails');
     Route::get('admin-order-print/{id}','AdminOrderController@orderPrint');
     Route::get('admin-orders/quotation/{id}','AdminOrderController@getQuotation');
-    Route::get('admin-order-quotation-print/{id}','AdminOrderController@orderQuotationPrint');
+    Route::get('admin-order-quotation-print/{id}/{view?}','AdminOrderController@orderQuotationPrint');
     Route::post('admin-orders/update-quotation','AdminOrderController@updateQuotation');
-    
+
     Route::get('order-users', 'OrderUserController@index');
     Route::get('users/import', 'OrderUserController@import');
     Route::post('users/import', 'OrderUserController@importUsers');
-    
+
     Route::any('quotation-invoices', 'AdminOrderController@quotationInvoices');
     Route::get('invoices/details', 'AdminOrderController@getInvoiceAmount');
     Route::any('invoices', 'AdminOrderController@getAllInvoices');
     Route::get('admin-orders/delete-quotation/{id}', 'AdminOrderController@deleteQuotation');
     Route::post('admin-orders/cancel-quotation', 'AdminOrderController@cancelQuotation');
     Route::post('admin-orders/undo-quotation', 'AdminOrderController@undoQuotation');
-    
+
     //Purchase orders
     Route::resource('purchase-orders', 'PurchaseOrderController');
     Route::get('purchase-orders/supplier/{id}','PurchaseOrderController@suppierPurchaseOrders');
     Route::get('purchase-order-print/{id}','PurchaseOrderController@orderPrint');
-    
+
     // Courier Assignment
     Route::resource('courier-assignment', 'CourierAssignmentsController');
     Route::get('courier-assignment/{id}', 'CourierAssignmentsController@edit');
@@ -166,11 +166,11 @@ Route::group(['namespace' => 'Admin'], function () {
     Route::get('update-status-order/{id}', 'AdminController@updateStatusOrder');
     Route::get('update-delivery-status/{id}', 'AdminController@updateDeliveryStatus');
     Route::get('login-as-admin', 'AdminController@login');
-    
+
     Route::get('send-email', 'HomeController@sendEmailView');
     Route::post('send-email', 'HomeController@sendEmail');
-       
-    
+
+
     Route::get('get-wallet-amount/{id}','AdminOrderController@getWalletAmount');
 });
 

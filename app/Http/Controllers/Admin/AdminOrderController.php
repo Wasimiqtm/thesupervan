@@ -35,18 +35,18 @@ class AdminOrderController extends Controller
      * @return \Illuminate\View\View
      */
     public function index(Request $request)
-    {   
+    {
 
         if ($request->ajax()) {
 
             $id = $request->input('user_id');
             $orders = Transaction::with(['cart','user', 'admin:id,name'])->where('transactions.type', 'admin_order')->dateFilter();
-            
+
             $admin = Auth::user();
             if ($admin->hasRole(2)) {
                 $orders =$orders->where('admin_id', $admin->id);
             }
-            
+
             if ($id) {
                 $user_id = decodeId($id);
 
@@ -86,7 +86,7 @@ class AdminOrderController extends Controller
                             $username = $user['name'];
                         }
                     }
-                    
+
                     return $username;
                 })
                 ->addColumn('orderId', function ($order) {
@@ -118,17 +118,17 @@ class AdminOrderController extends Controller
                     }
                 })
                 ->addColumn('action', function ($order) use ($admin) {
-                    
+
                     $action = '';
 
                     $action .='<a href="admin-orders/' . Hashids::encode($order->id) . '" class="text-success btn-order" data-toggle="tooltip" title="View Quotation"><i class="fa fa-eye fa-lg"></i></a>';
                     $action .='<a href="admin-orders/quotation/' . Hashids::encode($order->id) . '" class="text-primary btn-order  btn-generate-invoice" data-toggle="tooltip" title="Generate Invoice"><i class="fa fa-file fa-lg"></i></a>';
-                    
+
                     if ($admin->hasRole(1)) {
                         $action .='<a href="' .url('admin/admin-orders/'.Hashids::encode($order->id)). '/edit" class="text-success btn-order" data-toggle="tooltip" title="Edit Quotation"><i class="fa fa-edit"></i></a>';
                         $action .= '<a href="admin-orders/'.Hashids::encode($order->id).'" class="text-danger btn-delete" data-toggle="tooltip" title="Delete Quotation"><i class="fa fa-lg fa-trash"></i></a>';
                     }
-                    
+
                     return $action;
                 })
                 ->rawColumns(['discounted_price','amount', 'orders_details', 'orderId', 'email', 'status', 'action','barcode_image','courier_service'])
@@ -149,7 +149,7 @@ class AdminOrderController extends Controller
         ->get()->pluck('name_with_customer_id_and_shop_name', 'id')->prepend('Select Customer', '');
 
         $products = Product::has('quantity')->get()->pluck('name_with_bar_code_and_item_code', 'id')->prepend('Select Product', '');
-        
+
         return view($this->resource . '/create', get_defined_vars());
     }
 
@@ -178,7 +178,7 @@ class AdminOrderController extends Controller
         if ($customer) {
             $cartData['user_details'] = serialize($customer->toArray());
         }
-        
+
         $productQuantity = $request->product_quantity;
         $productPrice = $request->product_price;
         $excludeIncludeVat = $request->exclude_include_vat;
@@ -195,11 +195,11 @@ class AdminOrderController extends Controller
             $product = Product::with('tax_rate')->find($productId);
             if ($product) {
                 //$price = $product->price;
-                
+
                 $excludeIncludeVatStatus = isset($excludeIncludeVat[$key]) ? $excludeIncludeVat[$key] : 'none';
-                
+
                 $price = isset($productPrice[$key]) ? $productPrice[$key] : $product->price;
-                
+
                 $qty = isset($productQuantity[$key]) ? $productQuantity[$key] : 1;
                  $priceOptions = isset($price_options[$key])? $price_options[$key]:'Standard Price';
                 $taxRate = getVatCharges(); //$product->tax_rate
@@ -215,10 +215,10 @@ class AdminOrderController extends Controller
                     $cost = ($cost + ($price * $qty));
                 }
 
-                
+
                 $discount   = $discount + (($price - $product->discountedPrice) * $qty);
                 $totalQty = $totalQty + $qty;
-                
+
                 $productData[] = [
                     'id' => $product->id,
                     'name' => $product->name,
@@ -227,27 +227,27 @@ class AdminOrderController extends Controller
                     'exclude_include_vat' => $excludeIncludeVatStatus,
                     'price_options' => $priceOptions
                 ];
-                
+
                 $input['product_id']            = $product->id;
                 $input['quantity']              = $qty;
                 $input['amount_per_item']       = $price; //$product->discountedPrice;
-                $input['exclude_include_vat']   = $excludeIncludeVatStatus; 
+                $input['exclude_include_vat']   = $excludeIncludeVatStatus;
                 $input['created_at']            = Carbon::now();
                 $input['updated_at']            = Carbon::now();
                 array_push($historyData, $input);
             }
         }
-        
+
         $cartData['cart_details'] = serialize($productData);
         $cartData['payment_status'] = 'pending';
         $cartData['delivery_status'] = 'pending';
-        
+
         $shoppingCart = ShoppingCart::create($cartData);
         if ($shoppingCart) {
-            
+
             //$totalAmount = ($cost - $discount) + $tax;
             $totalAmount = $cost;
-            
+
             $transaction['user_id']   = $customerId;
             $transaction['cart_id']   = $shoppingCart->id;
             $transaction['qty']       = $totalQty;
@@ -267,12 +267,12 @@ class AdminOrderController extends Controller
             // }
             // create transaction
             $transaction = Transaction::create($transaction);
-            
+
             if ($transaction) {
                 $historyData = collect($historyData);
                 $historyData = $historyData->map(function ($item) use ($transaction) {
                     $item['transaction_id'] = $transaction->id;
-                    
+
                     $admin = Auth::user();
                     if ($admin->hasRole(1)) {
                         // remove product quantity from main store
@@ -282,14 +282,14 @@ class AdminOrderController extends Controller
                         // remove product quantity to van store
                         updateVanStoreProductStockByData($item['product_id'], $item['quantity'], 2, 3, $transaction->id, $admin->id, 'Quotation created by van store');
                     }
-                    
+
                     return $item;
                 });
-                ShoppingCartHistory::insert($historyData->toArray()); 
-                
-                if ($paymentMethod == '2pay') { 
+                ShoppingCartHistory::insert($historyData->toArray());
+
+                if ($paymentMethod == '2pay') {
                     UserWallet::create([
-                        'date' => $orderDate, 
+                        'date' => $orderDate,
                         'debit' => $transaction->amount,
                         'user_id' => $customerId,
                         'order_id' => $transaction->id,
@@ -297,10 +297,10 @@ class AdminOrderController extends Controller
                         'note' => 'Quotation created (To Pay)'
                     ]);
                 }
-                
+
             }
         }
-        
+
         return response()->json([
             'success'  => true,
             'message'  => 'Quotation successfully created'
@@ -317,7 +317,7 @@ class AdminOrderController extends Controller
     {
 
         $id = decodeId($id);
-      
+
 
         $order = Transaction::with(['cart', 'purchasedItems.product.product_images'])->find($id);
 
@@ -327,7 +327,7 @@ class AdminOrderController extends Controller
 
         return view($this->resource . '/invoice', compact('order','vatCharges'));
     }
-    
+
     /**
      * Show the form for editing the specified resource.
      *
@@ -338,7 +338,7 @@ class AdminOrderController extends Controller
     public function edit($id)
     {
         $id = decodeId($id);
-        
+
         $customers = User::whereIn('type', ['wholesaler','shopkeeper'])
         ->get()->pluck('name_with_customer_id_and_shop_name', 'id')->prepend('Select Customer', '');
 
@@ -376,7 +376,7 @@ class AdminOrderController extends Controller
         if ($customer) {
             $cartData['user_details'] = serialize($customer->toArray());
         }
-        
+
         $productQuantity = $request->product_quantity;
         $productPrice = $request->product_price;
         $excludeIncludeVat = $request->exclude_include_vat;
@@ -393,11 +393,11 @@ class AdminOrderController extends Controller
             $product = Product::with('tax_rate')->find($productId);
             if ($product) {
                 //$price = $product->price;
-                
+
                 $excludeIncludeVatStatus = isset($excludeIncludeVat[$key]) ? $excludeIncludeVat[$key] : 'none';
 
                 $price = isset($productPrice[$key]) ? $productPrice[$key] : $product->price;
-                
+
                 $qty = isset($productQuantity[$key]) ? $productQuantity[$key] : 1;
                 $priceOptions = isset($price_options[$key])? $price_options[$key]:'Standard Price';
                 $taxRate = getVatCharges(); //$product->tax_rate
@@ -413,10 +413,10 @@ class AdminOrderController extends Controller
                     $cost = ($cost + ($price * $qty));
                 }
 
-                
+
                 $discount   = $discount + (($price - $product->discountedPrice) * $qty);
                 $totalQty = $totalQty + $qty;
-                
+
                 $productData[] = [
                     'id' => $product->id,
                     'name' => $product->name,
@@ -425,27 +425,27 @@ class AdminOrderController extends Controller
                     'exclude_include_vat' => $excludeIncludeVatStatus,
                     'price_options' => $priceOptions
                 ];
-                
+
                 $input['product_id']            = $product->id;
                 $input['quantity']              = $qty;
                 $input['amount_per_item']       = $price; //$product->discountedPrice;
-                $input['exclude_include_vat']   = $excludeIncludeVatStatus; 
+                $input['exclude_include_vat']   = $excludeIncludeVatStatus;
                 $input['created_at']            = Carbon::now();
                 $input['updated_at']            = Carbon::now();
                 array_push($historyData, $input);
             }
         }
-        
+
         $cartData['cart_details'] = serialize($productData);
         $cartData['payment_status'] = 'pending';
         $cartData['delivery_status'] = 'pending';
-        
+
         $shoppingCart = ShoppingCart::where('id', $order->cart_id)->update($cartData);
         if ($shoppingCart) {
-            
+
             //$totalAmount = ($cost - $discount) + $tax;
             $totalAmount = $cost;
-            
+
             $transaction['user_id']   = $customerId;
             $transaction['cart_id']   = $order->cart_id;
             $transaction['qty']       = $totalQty;
@@ -465,9 +465,9 @@ class AdminOrderController extends Controller
             // }
             // create transaction
             $transaction = Transaction::where('id', $order->id)->update($transaction);
-            
+
             if ($transaction) {
-                
+
                 $transaction = Transaction::with(['cart'])->find($order->id);
 
                 $schs = ShoppingCartHistory::where('transaction_id', $order->id)->get();
@@ -486,7 +486,7 @@ class AdminOrderController extends Controller
                 $historyData = collect($historyData);
                 $historyData = $historyData->map(function ($item) use ($order) {
                     $item['transaction_id'] = $order->id;
-                    
+
                     $admin = Auth::user();
                     if ($admin->hasRole(1)) {
                         // remove product quantity from main store
@@ -496,12 +496,12 @@ class AdminOrderController extends Controller
                         // remove product quantity to van store
                         updateVanStoreProductStockByData($item['product_id'], $item['quantity'], 2, 3, $order->id, $admin->id, 'Quotation updated by van store');
                     }
-                    
+
                     return $item;
                 });
                 ShoppingCartHistory::where('transaction_id', $order->id)->delete();
-                ShoppingCartHistory::insert($historyData->toArray()); 
-                
+                ShoppingCartHistory::insert($historyData->toArray());
+
                 if (@$transaction->cart) {
                     $transaction->cart->user_details = unserialize($transaction->cart->user_details);
                     $transaction->cart->cart_details = unserialize($transaction->cart->cart_details);
@@ -513,12 +513,12 @@ class AdminOrderController extends Controller
                         $quotation->update($quotationData);
                     }
                 }
-                
-                
+
+
                 UserWallet::where('order_id', $transaction->id)->delete();
-                if ($paymentMethod == '2pay') { 
+                if ($paymentMethod == '2pay') {
                     UserWallet::create([
-                        'date' => $orderDate, 
+                        'date' => $orderDate,
                         'debit' => $transaction->amount,
                         'user_id' => $customerId,
                         'order_id' => $transaction->id,
@@ -526,10 +526,10 @@ class AdminOrderController extends Controller
                         'note' => 'Quotation updated (To Pay)'
                     ]);
                 }
-                
+
             }
         }
-        
+
         return response()->json([
             'success'  => true,
             'message'  => 'Quotation successfully updated'
@@ -575,8 +575,8 @@ class AdminOrderController extends Controller
 
         return response()->json(['result'=>$response], $status);
     }
-    
-    
+
+
     /**
      * Display the specified resource.
      *
@@ -586,7 +586,7 @@ class AdminOrderController extends Controller
     public function getQuotation($id)
     {
         $id = decodeId($id);
-        
+
         $quotation = Quotation::where('transaction_id', $id)->first();
 
         $order = Transaction::with(['cart'])->find($id);
@@ -600,14 +600,14 @@ class AdminOrderController extends Controller
         }else{
             Quotation::create($quotationData);
         }
-        
-        
+
+
         $quotation = Quotation::where('transaction_id', $id)->first();
         $order = json_decode($quotation->transaction_details);
 
         return view($this->resource . '/quotation-invoice', compact('order', 'quotation'));
     }
-    
+
     /**
      * Display the specified resource.
      *
@@ -618,7 +618,7 @@ class AdminOrderController extends Controller
     {
         $id = $request->order_id;
         $quotation = Quotation::where('transaction_id', $id)->first();
-        
+
         if ($quotation) {
             $transactionDetails = json_decode($quotation->transaction_details);
             //$transactionDetails->cost = $request->subtotal;
@@ -632,7 +632,7 @@ class AdminOrderController extends Controller
                     foreach ($transactionDetails->cart->cart_details as $cartKey => $cart) {
                         if ($cart->id == $productKey) {
                             $productDetail = $transactionDetails->cart->cart_details[$cartKey];
-                            
+
                             $productDetail->name = $product['name'];
                             $productDetail->price = $product['price'];
                             $productDetail->quantity = $product['quantity'];
@@ -643,16 +643,16 @@ class AdminOrderController extends Controller
                     }
                 }
             }
-            
+
                     $cartData['cart_details'] = serialize($transactionDetails->cart->cart_details);
             ShoppingCart::where('id',  $id)->update($cartData);
             $quotation->update(['invoice_no' => $request->invoice_no, 'transaction_details' => json_encode($transactionDetails)]);
-            
-            Session::flash('success', 'Quotation successfully updated!');  
+
+            Session::flash('success', 'Quotation successfully updated!');
         } else {
-            Session::flash('error', 'Quotation not update!');  
+            Session::flash('error', 'Quotation not update!');
         }
-        
+
         return redirect('admin/admin-orders/quotation/' . Hashids::encode($id));
     }
 
@@ -662,13 +662,13 @@ class AdminOrderController extends Controller
     public function getProductRow()
     {
         $products = Product::has('quantity')->get()->pluck('name_with_bar_code_and_item_code', 'id')->prepend('Select Product', '');
-        
+
         return response()->json([
             'success'  => true,
             'html'  => view($this->resource . '.product-row', get_defined_vars())->render()
         ], $this->successStatus);
     }
-    
+
     /**
      * Get Product Details
      * @param integer $id
@@ -686,7 +686,7 @@ class AdminOrderController extends Controller
 
         if ($product) {
             $product->final_quantity = 0;
-        
+
             $product->ex_vat_cost = $product->cost;
             if ($product->vat_type == 2) {
                 $product->ex_vat_cost = round($product->cost / 1.2, 2);
@@ -695,7 +695,7 @@ class AdminOrderController extends Controller
             if ($product->vat_type == 1) {
                 $product->inc_vat_cost = round($product->cost * 1.2, 2);
             }
-            
+
             $admin = Auth::user();
             if ($admin->hasRole(1)) {
                 if ($product->quantity) {
@@ -708,18 +708,18 @@ class AdminOrderController extends Controller
                     $product->final_quantity = $vsp->quantity;
                 }
             }
-            
+
             return response()->json([
                 'success'  => true,
                 'product'  => $product
             ], $this->successStatus);
         }
-        
+
         return response()->json([
             'success'  => false,
         ], $this->successStatus);
     }
-    
+
     /**
      * change status
      */
@@ -790,14 +790,14 @@ class AdminOrderController extends Controller
         $vatCharges=(int)$vatCharges->rate;
         return view($this->resource . '/invoice-print', compact('order', 'couriers','vatCharges'));
     }
-    
-    public function orderQuotationPrint($id)
+
+    public function orderQuotationPrint($id, $view = null)
     {
         $id = decodeId($id);
         $quotation = Quotation::where('transaction_id', $id)->first();
         $order = json_decode($quotation->transaction_details);
 
-        return view($this->resource . '/invoice-quotation-print', compact('order', 'quotation'));
+        return view($this->resource . '/invoice-quotation-print', compact('order', 'quotation', 'view'));
     }
 
     public function updateOrderStatus($id) {
@@ -826,7 +826,7 @@ class AdminOrderController extends Controller
             'final_content' => "<p><b>Dear Admin</b></p>
                                     <p>An Order is been $status</p>",
         ];
-         
+
         try{
             Email::sendEmail($data);
         }
@@ -834,7 +834,7 @@ class AdminOrderController extends Controller
         {
             Log::error('Order Email error: ' . $e->getMessage());
         }
-        
+
         try{
             Email::sendEmail($data1);
         }
@@ -842,9 +842,9 @@ class AdminOrderController extends Controller
         {
             Log::error('Order Email error: ' . $e->getMessage());
         }
-        
-      
-        
+
+
+
         return 'true';
     }
 
@@ -865,27 +865,27 @@ class AdminOrderController extends Controller
         Transaction::where('id',\request()->order_id)->update(['updated_columns' => json_encode($data)]);
         return back()->with('success','Successfully updated');
     }
-    
+
     public function getWalletAmount($id)
     {
         $walletAmount = 'Wallet: £0.00';
         $payAmount = 'To Pay: £0.00';
-        
+
         $wallet = getWholsellerDataWallet($id);
         $twopay = get2PayAmount($id);
-        
+
         if ($wallet<0) {
             $walletAmount = '-£'.number_format(abs($wallet), 2);
         } else {
             $walletAmount = '£'.number_format($wallet, 2);
         }
-        
+
         if ($twopay<0) {
             $payAmount = '-£'.number_format(abs($twopay), 2);
         } else {
             $payAmount = '£'.number_format($twopay, 2);
         }
-        
+
         return '<a href="'. url("admin/orders?type=admin_order&payment_method=wallet&user_id=" . Hashids::encode($id)) .'" target="_blank">Wallet: '. $walletAmount .'</a>';
                // . '<br/>'
                // . '<a href="'. url("admin/orders?type=admin_order&payment_method=2pay&user_id=" . Hashids::encode($id)) .'" target="_blank">To Pay: '. $payAmount .'</a>';
@@ -898,7 +898,7 @@ class AdminOrderController extends Controller
      * @return \Illuminate\View\View
      */
     public function quotationInvoices(Request $request)
-    {   
+    {
         if ($request->ajax()) {
             if ($request->filled('user_id')) {
                 $user_id = $request->input('user_id');
@@ -941,17 +941,17 @@ class AdminOrderController extends Controller
         $customers = User::whereIn('type', ['wholesaler','shopkeeper'])->pluck('customer_id', 'id');
         return view($this->resource . '/quotation-invoices', compact('customers'));
     }
-    
+
     /**
      * Display a listing of the resource.
      *
      * @return \Illuminate\View\View
      */
     public function getAllInvoices(Request $request)
-    {   
+    {
         if ($request->ajax()) {
-            
-                
+
+
             $orders = Transaction::with('quotation', 'user:id,customer_id', 'admin:id,name')
                         ->whereHas('quotation')
                         ->where('type', 'admin_order')->dateFilter();
@@ -964,7 +964,7 @@ class AdminOrderController extends Controller
             if ($request->filled('user_id') && $request->user_id > 0) {
                 $user_id = $request->input('user_id');
                 $orders->whereUserId($user_id);
-            }    
+            }
 
             if($request->filled('order')) {
                 $orderBy = $request->order;
@@ -1006,7 +1006,7 @@ class AdminOrderController extends Controller
                 ->addColumn('invoice', function ($order) use ($admin) {
                     if ($order->quotation) {
                         $invoice = '<u><a href="admin-orders/quotation/' . Hashids::encode($order->id) . '" target="_blank" class="text-success">View Invoice</a></u>';
-                        
+
                         if ($admin->hasRole(1)) {
                             $invoice .= ' - <u><a href="admin-orders/delete-quotation/' . Hashids::encode($order->quotation->id) . '" class="text-danger">Delete Invoice</a></u>';
 
@@ -1017,7 +1017,7 @@ class AdminOrderController extends Controller
                             }
                         }
 
-                        return $invoice; 
+                        return $invoice;
                     } else {
                         return '<u><a href="admin-orders/quotation/' . Hashids::encode($order->id) . '" target="_blank" class="text-info">Generate Invoice</a></u>';
                     }
@@ -1041,13 +1041,13 @@ class AdminOrderController extends Controller
     public function deleteQuotation($id)
     {
         $id = decodeId($id);
-        
+
         Quotation::where('id', $id)->delete();
 
-        Session::flash('success', 'Invoice successfully deleted!');  
+        Session::flash('success', 'Invoice successfully deleted!');
         return redirect('admin/invoices');
     }
-    
+
     /**
      * Show the form for editing the specified resource.
      *
@@ -1061,7 +1061,7 @@ class AdminOrderController extends Controller
 
         return ['success' => true];
     }
-    
+
     public function undoQuotation(Request $request)
     {
         Quotation::where('id', $request->id)->update(['is_canceled' => 0, 'note' => null]);
@@ -1072,7 +1072,7 @@ class AdminOrderController extends Controller
     {
         if($request->ajax()){
             $orders = Transaction::with(['cart','user', 'admin:id,name'])->where('transactions.type', 'admin_order')->dateFilter();
-            
+
             return Datatables::of($orders)
                 ->addColumn('date', function ($order) {
                     return date('d-m-Y', strtotime($order->order_date));
@@ -1080,16 +1080,16 @@ class AdminOrderController extends Controller
                     return $order->amount;
                 })->addColumn('user_name',function($order){
                    return @$order->user->company_name;
-                
+
                 })
-             
-                
+
+
                 ->rawColumns(['date'])
                 ->make(true);
-            
+
         }
         $customers = User::whereIn('type', ['wholesaler','shopkeeper'])->pluck('customer_id', 'id');
         return view($this->resource . '/invoice_amount', compact('customers'));
-        
+
     }
 }
