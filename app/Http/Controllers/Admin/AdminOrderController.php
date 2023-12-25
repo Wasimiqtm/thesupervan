@@ -603,9 +603,14 @@ class AdminOrderController extends Controller
 
 
         $quotation = Quotation::where('transaction_id', $id)->first();
+        $lastQuotation = Quotation::where('id', '<', $quotation->id) // Assuming $currentQuotationId is the current record's id
+        ->orderBy('id', 'desc')
+            ->first();
+
+        $getNextInvoiceNumber = generateNextInvoiceNumber($lastQuotation->invoice_no);
         $order = json_decode($quotation->transaction_details);
 
-        return view($this->resource . '/quotation-invoice', compact('order', 'quotation'));
+        return view($this->resource . '/quotation-invoice', compact('order', 'quotation', 'lastQuotation', 'getNextInvoiceNumber'));
     }
 
     /**

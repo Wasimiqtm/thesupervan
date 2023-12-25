@@ -1463,7 +1463,7 @@ if (! function_exists('updateProductStockByData')) {
         $stock = Stock::create($store_data);
         if($stock)
             updateProductStock($product_id, $store_id);
-        
+
     }
 }
 
@@ -1482,7 +1482,7 @@ if (! function_exists('updateVanStoreProductStockByData')) {
         $stock = VanStoreStockHistory::create($store_data);
         if($stock)
             updateVanStoreProductStock($product_id, $admin_id);
-        
+
     }
 }
 
@@ -1920,7 +1920,7 @@ if (! function_exists('adminDetails')) {
     function adminDetails()
     {
         return '<h4>Admin Details:</h4>
-        <p> 
+        <p>
             <b>Company Name:</b> VAPEOSONIC LTD<br>
             <b>COMPANY REG NO:</b> SC737008<br>
             <b>VAT NO:</b> 416 9547 70<br>
@@ -1949,12 +1949,25 @@ if (! function_exists('sixDigitInvoiceNumber')) {
         if ($invoiceNo != null) {
             return $invoiceNo;
         }
-        
+
         $number = $orderId;
         // if ($orderId > 727) {
         //     $number = $quotationId + 456;
         // }
         return 'INV-'.str_pad($number, 6, '0', STR_PAD_LEFT);
+    }
+}
+
+if (! function_exists('generateNextInvoiceNumber')) {
+    function generateNextInvoiceNumber($lastInvoiceNumber)
+    {
+        // Extract the numeric part of the last invoice number
+        $lastInvoiceNumber = preg_replace('/[^0-9]/', '', $lastInvoiceNumber);
+
+        // Increment the numeric part for the next invoice number
+        $nextInvoiceNumber = 'INV-' . str_pad($lastInvoiceNumber + 1, 6, '0', STR_PAD_LEFT);
+
+        return $nextInvoiceNumber;
     }
 }
 
@@ -2038,7 +2051,7 @@ if (!function_exists('roleName')) {
         if (@$user->getRoleNames()->first()) {
             $roleName = $user->getRoleNames()->first();
         }
-            
+
         return $roleName;
     }
 
