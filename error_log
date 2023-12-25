@@ -1,0 +1,24 @@
+[30-Jul-2020 08:06:12 UTC] PHP Fatal error:  Uncaught ReflectionException: Class config does not exist in /home/pi4iru9l5w19/public_html/vendor/laravel/framework/src/Illuminate/Container/Container.php:788
+Stack trace:
+#0 /home/pi4iru9l5w19/public_html/vendor/laravel/framework/src/Illuminate/Container/Container.php(788): ReflectionClass->__construct('config')
+#1 /home/pi4iru9l5w19/public_html/vendor/laravel/framework/src/Illuminate/Container/Container.php(667): Illuminate\Container\Container->build('config')
+#2 /home/pi4iru9l5w19/public_html/vendor/laravel/framework/src/Illuminate/Container/Container.php(615): Illuminate\Container\Container->resolve('config', Array)
+#3 /home/pi4iru9l5w19/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Application.php(767): Illuminate\Container\Container->make('config', Array)
+#4 /home/pi4iru9l5w19/public_html/vendor/laravel/framework/src/Illuminate/Container/Container.php(1227): Illuminate\Foundation\Application->make('config')
+#5 /home/pi4iru9l5w19/public_html/vendor/laravel/framework/src/Illuminate/Log/L in /home/pi4iru9l5w19/public_html/vendor/laravel/framework/src/Illuminate/Container/Container.php on line 788
+[30-Jul-2020 08:06:17 UTC] PHP Fatal error:  Uncaught ReflectionException: Class config does not exist in /home/pi4iru9l5w19/public_html/vendor/laravel/framework/src/Illuminate/Container/Container.php:788
+Stack trace:
+#0 /home/pi4iru9l5w19/public_html/vendor/laravel/framework/src/Illuminate/Container/Container.php(788): ReflectionClass->__construct('config')
+#1 /home/pi4iru9l5w19/public_html/vendor/laravel/framework/src/Illuminate/Container/Container.php(667): Illuminate\Container\Container->build('config')
+#2 /home/pi4iru9l5w19/public_html/vendor/laravel/framework/src/Illuminate/Container/Container.php(615): Illuminate\Container\Container->resolve('config', Array)
+#3 /home/pi4iru9l5w19/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Application.php(767): Illuminate\Container\Container->make('config', Array)
+#4 /home/pi4iru9l5w19/public_html/vendor/laravel/framework/src/Illuminate/Container/Container.php(1227): Illuminate\Foundation\Application->make('config')
+#5 /home/pi4iru9l5w19/public_html/vendor/laravel/framework/src/Illuminate/Log/L in /home/pi4iru9l5w19/public_html/vendor/laravel/framework/src/Illuminate/Container/Container.php on line 788
+[09-Aug-2021 11:21:34 UTC] PHP Warning:  Uncaught ErrorException: require(/home/pi4iru9l5w19/public_html/routes/web.php): failed to open stream: No such file or directory in /home/pi4iru9l5w19/public_html/vendor/laravel/framework/src/Illuminate/Routing/RouteFileRegistrar.php:35
+Stack trace:
+#0 /home/pi4iru9l5w19/public_html/vendor/laravel/framework/src/Illuminate/Routing/RouteFileRegistrar.php(35): Illuminate\Foundation\Bootstrap\HandleExceptions->handleError(2, 'require(/home/p...', '/home/pi4iru9l5...', 35, Array)
+#1 /home/pi4iru9l5w19/public_html/vendor/laravel/framework/src/Illuminate/Routing/RouteFileRegistrar.php(35): require()
+#2 /home/pi4iru9l5w19/public_html/vendor/laravel/framework/src/Illuminate/Routing/Router.php(415): Illuminate\Routing\RouteFileRegistrar->register('/home/pi4iru9l5...')
+#3 /home/pi4iru9l5w19/public_html/vendor/laravel/framework/src/Illuminate/Routing/Router.php(373): Illuminate\Routing\Router->loadRoutes('/home/pi4iru9l5...')
+#4 /home/pi4iru9l5w19/public_html/vendor/laravel/framework/src/Illuminate/Routing/RouteRegistra in /home/pi4iru9l5w19/public_html/vendor/laravel/framework/src/Illuminate/Routing/RouteFileRegistrar.php on line 35
+[09-Aug-2021 11:21:34 UTC] PHP Fatal error:  Illuminate\Routing\RouteFileRegistrar::register(): Failed opening required '/home/pi4iru9l5w19/public_html/routes/web.php' (include_path='.:/opt/alt/php73/usr/share/pear') in /home/pi4iru9l5w19/public_html/vendor/laravel/framework/src/Illuminate/Routing/RouteFileRegistrar.php on line 35
