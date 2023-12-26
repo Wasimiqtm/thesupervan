@@ -603,7 +603,7 @@ class AdminOrderController extends Controller
 
 
         $quotation = Quotation::where('transaction_id', $id)->first();
-        $lastQuotation = Quotation::where('id', '<', $quotation->id) // Assuming $currentQuotationId is the current record's id
+        $lastQuotation = Quotation::where('id', '<', $quotation->id)->whereNotNull('invoice_no') // Assuming $currentQuotationId is the current record's id
         ->orderBy('id', 'desc')
             ->first();
 
@@ -989,7 +989,8 @@ class AdminOrderController extends Controller
                 })
                 ->addColumn('invoice_no', function ($order) {
                     if ($order->quotation) {
-                        return sixDigitInvoiceNumber($order->id, $order->quotation->invoice_no);
+//                        return sixDigitInvoiceNumber($order->id, $order->quotation->invoice_no);
+                        return $order->quotation->invoice_no;
                     }
                     return '-';
                 })
