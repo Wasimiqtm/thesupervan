@@ -1,5 +1,6 @@
 <?php
 
+use App\Models\Quotation;
 use Illuminate\Support\Facades\Auth;
 
 use App\Country;
@@ -1959,10 +1960,13 @@ if (! function_exists('sixDigitInvoiceNumber')) {
 }
 
 if (! function_exists('generateNextInvoiceNumber')) {
-    function generateNextInvoiceNumber($lastInvoiceNumber)
+    function generateNextInvoiceNumber()
     {
+        $lastQuotation = Quotation::whereNotNull('invoice_no')
+            ->whereRaw('CAST(SUBSTRING(invoice_no, 5) AS UNSIGNED) = (SELECT MAX(CAST(SUBSTRING(invoice_no, 5) AS UNSIGNED)) FROM quotations WHERE invoice_no IS NOT NULL)')
+            ->first();
         // Extract the numeric part of the last invoice number
-        $lastInvoiceNumber = preg_replace('/[^0-9]/', '', $lastInvoiceNumber);
+        $lastInvoiceNumber = preg_replace('/[^0-9]/', '', $lastQuotation->invoice_no);
 
         // Increment the numeric part for the next invoice number
         $nextInvoiceNumber = 'INV-' . str_pad($lastInvoiceNumber + 1, 6, '0', STR_PAD_LEFT);

@@ -601,16 +601,11 @@ class AdminOrderController extends Controller
             Quotation::create($quotationData);
         }
 
-
         $quotation = Quotation::where('transaction_id', $id)->first();
-        $lastQuotation = Quotation::where('id', '<', $quotation->id)->whereNotNull('invoice_no') // Assuming $currentQuotationId is the current record's id
-        ->orderBy('id', 'desc')
-            ->first();
-
-        $getNextInvoiceNumber = generateNextInvoiceNumber($lastQuotation->invoice_no);
+        $getNextInvoiceNumber = generateNextInvoiceNumber();
         $order = json_decode($quotation->transaction_details);
 
-        return view($this->resource . '/quotation-invoice', compact('order', 'quotation', 'lastQuotation', 'getNextInvoiceNumber'));
+        return view($this->resource . '/quotation-invoice', compact('order', 'quotation', 'getNextInvoiceNumber'));
     }
 
     /**

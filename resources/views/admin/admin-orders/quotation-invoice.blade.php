@@ -78,12 +78,12 @@
                                         <div class="row">
                                             <div class="col-md-4 col-sm-5 inv-label">Invoice #:</div>
                                             <div class="col-md-8 col-sm-7">
-                                                @if ($getNextInvoiceNumber != null)
+                                                @if ($quotation->invoice_no != null)
                                                     <input type="text" name="invoice_no" required
-                                                        value="{{ $getNextInvoiceNumber }}" readonly />
+                                                        value="{{ $quotation->invoice_no }}" readonly />
                                                 @else
                                                     <input type="text" name="invoice_no" required
-                                                        placeholder="{{ $getNextInvoiceNumber }}" />
+                                                        value="{{ $getNextInvoiceNumber }}" readonly />
                                                 @endif
                                             </div>
                                         </div>
