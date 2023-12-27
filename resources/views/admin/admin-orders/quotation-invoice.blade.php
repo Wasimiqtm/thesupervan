@@ -50,14 +50,16 @@
                 <div class="col-md-12">
                     <section class="panel">
                         <!--<a id='printMe'  onclick="printDiv('printData');" style="padding: 10px;float: right;font-size: large;cursor: pointer">-->
-                        <a href="{{ url('admin/admin-order-quotation-print/' . Hashids::encode($order->id)) }}"
-                            target="_blank" style="padding: 10px;float: right;font-size: large;cursor: pointer" title="Print Invoice">
-                            <i class="fa fa-print"></i>
-                        </a>
-                        <a href="{{ url('admin/admin-order-quotation-print/' . Hashids::encode($order->id)). '/view' }}"
-                           target="_blank" style="padding: 10px;float: right;font-size: large;cursor: pointer" title="View Invoice">
-                            <i class="fa fa-print"></i>
-                        </a>
+                        @if($quotation->invoice_no)
+                            <a href="{{ url('admin/admin-order-quotation-print/' . Hashids::encode($order->id)) }}"
+                               target="_blank" style="padding: 10px;float: right;font-size: large;cursor: pointer" title="Print Invoice">
+                                <i class="fa fa-print"></i>
+                            </a>
+                            <a href="{{ url('admin/admin-order-quotation-print/' . Hashids::encode($order->id)). '/view' }}"
+                               target="_blank" style="padding: 10px;float: right;font-size: large;cursor: pointer" title="View Invoice">
+                                <i class="fa fa-print"></i>
+                            </a>
+                        @endif
                         <div class="panel-body invoice" id="printData">
                             <form action="{{ url('admin/admin-orders/update-quotation') }}" method="post">
                                 <div class="row invoice-to">
