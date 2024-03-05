@@ -27,7 +27,7 @@
             <div class="col-md-12">
                 <section class="panel">
                     <div class="panel-body invoice" id="printData">
-                            
+
                         <form id="applicationForm" action="{{ route('admin.admin-orders.store') }}" method="post">
                         @csrf
                         <div class="row invoice-to">
@@ -39,7 +39,7 @@
                                 <p>
                                     <div class="col-md-6">
                                         {!! Form::select('customer_id', $customers, null, ['class' => 'form-control select2 customer_id', 'required' => 'required', 'id' => 'customer_select2']) !!}
-                                        
+
                                         <label id="customer_id-error" class="error" for="customer_id"></label>
                                         <label id="customer_select2-error" class="error" for="customer_select2"></label>
                                     </div>
@@ -48,17 +48,17 @@
                                     </div>
                                 </p>
                             </div>
-                            
-                            
-                            
+
+
+
                             <div class="hide">
                                 <input type="text" name="code" id="code">
                             </div>
-                            
-                            
-                            
-                            
-                            
+
+
+
+
+
                             <div class="col-md-4 col-sm-5 pull-right">
                                 <div class="row">
                                     <div class="col-md-4 col-sm-5 inv-label">Date #</div>
@@ -66,7 +66,7 @@
                                 </div>
                             </div>
                         </div>
-                        
+
                         <div class="adm-table">
                             <table class="table table-invoice" >
                                 <thead>
@@ -96,7 +96,7 @@
                                            <td class="exclude_include_vat_tr">
                                             {!! Form::select('price_option[0]',  ['Standard Price'=> 'Standard Price' ,
  'Price Matched On Request' =>'Price Matched On Request' ,
-  'Reduced To Clear Price'=>'Reduced To Clear Price', 
+  'Reduced To Clear Price'=>'Reduced To Clear Price',
 	'Promotional Offer Price' => 'Promotional Offer Price'], null, ['class' => 'form-control price_option', 'required' => 'required']) !!}
                                             <label id="price_option[0]-error" class="error" for="price_option[0]"></label>
                                         </td>
@@ -136,13 +136,13 @@
                                 </ul>
                             </div>
                         </div>
-                        
+
                         <div class="form-group">
                             <div class="col-lg-offset-2 col-lg-6">
                                 {!! Form::submit('Create Performa Invoice', ['class' => 'btn btn-info pull-right admin-order-btn']) !!}
                             </div>
-                        </div>    
-                            
+                        </div>
+
                         </form>
                     </div>
                 </section>
@@ -160,7 +160,7 @@
 <script src="{{ asset('js/jquery.validate.min.js') }}"></script>
 <script src="{{ asset('js/lodash.min.js') }}"></script>
 <script type="text/javascript">
-    
+
     var i = 1;
     var products = [];
     var taxRate = {{ getVatCharges() }};
@@ -187,7 +187,7 @@
                 customer_id : { required : true },
             },
             submitHandler: function(form) {
-                
+
                 let _form = $(form);
                 let _loader = $("body");
                 let formData = _form.serialize();
@@ -213,19 +213,19 @@
                     },complete: function() {
                         $(".admin-order-btn").prop('disabled', false);
                     }
-                }); 
+                });
             }
     });
-    
+
         $(document).on('click', '.loadRow', function () {
             loadNewStatRow($(this));
         });
-        
+
         $(document).on('change', '.customer_id', function (e) {
-            
+
             let _el = $(this);
             var val = this.value;
-            
+
             if (val>0) {
                 loadingOverlay($(".customer_wallet"));
                 $.ajax({
@@ -243,11 +243,11 @@
                 $(".customer_wallet").hide();
                 $(".customer_wallet label").text('Wallet: £00.0');
             }
-            
+
         });
-        
+
         $(document).on('change', '.products', function (e) {
-            
+
             let _el = $(this);
             var _parent = $(this).parents('.product_row');
             var val = this.value;
@@ -291,7 +291,9 @@
                                     var wrapped = _(products).push(val);
                                     wrapped.commit();
                                     products = _.uniqBy(products);
-                                    _el.attr("disabled", true);    
+                                    _el.attr("disabled", true);
+                                    loadNewStatRow($(this));
+                                    $(".admin-order-btn").prop('disabled', false);
                                 } else {
                                     _el.val('').change();
                                     errorMessage('This product is not available for sale');
@@ -306,24 +308,24 @@
                     });
                 }
             }
-            
+
         });
-        
+
         $(document).on('change', '.product_quantity', function (e) {
             var val = parseInt(this.value);
             var max = parseInt($(this).attr('max'));
-            
+
             if (val > max) {
                 $(this).val(max);
             }
-            
+
             calculateAmount();
         });
-        
+
         $(document).on('change', '.product_price, .exclude_include_vat', function (e) {
             calculateAmount();
         });
-        
+
         $(document).on('click', '.removeRow', function() {
             var _parent = $(this).parents('.product_row');
             var productId = _parent.find(".products").val();
@@ -332,6 +334,7 @@
             });
             _parent.remove();
             calculateAmount();
+            $(".admin-order-btn").prop('disabled', false);
         });
 
 
@@ -339,13 +342,13 @@
             format:'dd/mm/yyyy'
         });
     });
-    
+
     function loadNewStatRow(_el) {
         let htmlDiv = $('tbody');
         let _parent = _el.parents('tr');
-        
+
         loadingOverlay(htmlDiv);
-        
+
         $.ajax({
             type: "GET",
             url: '{{ url("admin/get-product-row")}}',
@@ -354,7 +357,7 @@
                 if (data.success) {
                     var template = jQuery.validator.format(data.html);
                     $(template(i++)).appendTo(htmlDiv);
-                    
+
                     $(".select2").select2();
                 } else {
                     errorMessage(data.message);
@@ -363,14 +366,14 @@
             }
         });
     }
-    
+
     function calculateAmount() {
         var add = 1.2;
         var grossTotal = 0;
         var totalDiscount = 0;
         var totalVat = 0;
         var totalAmount = 0;
-        
+
         $('.table-invoice tbody tr.product_row').each(function() {
             let _product = $(this);
             var product_id = _product.find(".product_id").val();
@@ -385,14 +388,14 @@
                 var maxQuantity = parseInt(_product.find('.product_quantity').attr('max'));
                 quantityTotal = maxQuantity - quantity;
                 _product.find(".quantity_total").text(quantityTotal);
-                
+
                 if (productUnitPrice > 0 && quantity > 0) {
                     if (incExc == 'ex') {
                         var productTotal = (productUnitPrice * add) * quantity;
                     } else {
                         var productTotal = productUnitPrice*quantity;
                     }
-                    
+
                     var vat = productUnitPrice * 20/120;
                     _product.find(".product_unit_vat").text(vat.toFixed(2));
                     _product.find(".product_total").text(productTotal.toFixed(2));
@@ -412,8 +415,8 @@
         $(".total_vat").text((totalVat>0) ? totalVat.toFixed(2) : 0);
         $(".total_amount").text((totalAmount>0) ? totalAmount.toFixed(2) : 0);
     }
-    
-    
+
+
 </script>
 
 @endsection
