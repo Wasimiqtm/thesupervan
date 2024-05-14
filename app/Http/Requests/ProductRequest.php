@@ -25,7 +25,6 @@ class ProductRequest extends FormRequest
     {
         $data = [
             'code' => 'required|unique:products',
-            'item_code' => 'required|unique:products,item_code',
             'name' => 'required',
             'tax_rate_id' => 'required',
             //'barcode_symbology' => 'required',

@@ -74,13 +74,11 @@
                                 </div>
 
                                 <div class="form-group col-md-2 {{ $errors->has('item_code') ? 'has-error' : '' }}">
-                                    {!! Form::label('item_code', 'Item Code', ['class' => 'control-label required-input']) !!}
+                                    {!! Form::label('item_code', 'Item Code', ['class' => 'control-label']) !!}
                                     {!! Form::text('item_code', null, [
                                         'class' => 'form-control',
                                         'placeholder' => 'Item Code',
-                                        'required' => 'required',
                                     ]) !!}
-                                    {!! $errors->first('item_code', '<p class="help-block">:message</p>') !!}
                                     <div class="help-block with-errors"></div>
                                 </div>
                                 <div class="form-group col-md-3 {{ $errors->has('name') ? 'has-error' : '' }}">

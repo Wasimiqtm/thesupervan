@@ -2,14 +2,6 @@
 
 @section('style')
     <style>
-
-        .bottom-line {
-            border: none;
-            border-top: 2px dotted black;
-            color: #fff;
-            height: 1px;
-            width: 100%;
-        }
         .billTo {
             margin-top: 110px;
         }
@@ -318,10 +310,10 @@
                                             <h4>Bill To:</h4>
                                             <p>
                                                 <b>Business Name: {{ @$user->company_name }}</b><br>
-                                               <!-- Account No: {{ @$user->customer_id }}<br>-->
-                                                Address: {{ @$user->address }} <br><br>
-                                              <!--  <br> Tel: {{ @$user->contact_no ? $user->contact_no : @$user->phone }}<br>
-                                                Email: {{ @$user->email }}<br>-->
+                                                Account No: {{ @$user->customer_id }}<br>
+                                                Address: {{ @$user->address }}
+                                                <br> Tel: {{ @$user->contact_no ? $user->contact_no : @$user->phone }}<br>
+                                                Email: {{ @$user->email }}<br>
                                             </p>
                                         </div>
                                     </div>
@@ -533,46 +525,7 @@
                                     </table>
                                 </div>
                             @endif
-
-                            <hr class="bottom-line">
-                            <div class="row invoice-to" style="margin-top:10px;">
-                                <div class="col-md-6 col-sm-6 pull-left">
-                                    <div class="border-rounded pull-right">
-                                        <div style="padding-top: 6px;padding-left: 10px">
-                                            <p style="padding-bottom:0;">
-                                                <b>Customer Information:</b><br>
-                                                Customer Name: {{$user->name}}<br>
-                                                Customer Address: {{$user->address}}<br>
-
-                                                <b>Delivery Received By: </b>-------------------
-
-                                            </p>
-                                        </div>
-                                        {{--<hr style="margin-top: 10px;margin-bottom: 10px;">
-                                        <div style="margin-left: 10px;">
-                                            <p>
-                                                <b>Bank Account Name:</b> VAPEOSONIC LTD<br>
-                                                <b>Bank Account No:</b> 19277217<br>
-                                                <b>Bank Sort Code:</b> 04-06-05<br>
-                                            <!--   <b>Payment Reference:</b>
-                                                {{ sixDigitInvoiceNumber($order->id, $quotation->invoice_no) }}
-                                                    -->
-                                            </p>
-                                        </div>--}}
-                                    </div>
-                                </div>
-                                <div class="col-md-6 col-sm-6 pull-right">
-
-                                    <div class="border-rounded">
-                                        <div style="padding-top: 6px;padding-left: 15px;">
-                                            <h4>Invoice Total: £{{$order->amount}}</h4>
-                                            <h4>To Pay: {{ getWalletAndOrderAmount($order->user_id, 0) }}</h4>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
                         </div>
-
                 </div>
         </section>
         </div>

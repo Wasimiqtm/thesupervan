@@ -1940,7 +1940,7 @@ if (! function_exists('adminDetails')) {
 if (! function_exists('sixDigitQuotationNumber')) {
     function sixDigitQuotationNumber($number)
     {
-        return 'Q-'.str_pad($number, 6, '0', STR_PAD_LEFT);
+        return 'P-'.str_pad($number, 6, '0', STR_PAD_LEFT);
     }
 }
 

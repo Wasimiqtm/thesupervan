@@ -69,11 +69,11 @@ class ProductsController extends Controller
 
             if($request->filled('brand_id')) {
                 $products->where('brand_id', $request->brand_id);
-            }    
+            }
 
             if($request->filled('barcode')) {
                 $products->where('code', $request->barcode);
-            } 
+            }
 
             if($request->filled('product_name')) {
                 $products->where('name', 'like', "%".$request->product_name."%");
@@ -106,7 +106,7 @@ class ProductsController extends Controller
                 ->addColumn('total_ex_cost', function ($product) {
                     $totalExCost = 0;
                     $quantity = 0;
-                    
+
                     $exCost = $product->cost;
                     if ($product->vat_type == 2) {
                         $exCost = $product->cost / 1.2;
@@ -114,7 +114,7 @@ class ProductsController extends Controller
                     if (@$product->quantity->quantity > 0) {
                         $totalExCost = $product->quantity->quantity * $exCost;
                     }
-                    
+
                     return round($totalExCost, 2);
                 })
                 ->addColumn('total_inc_cost', function ($product) {
@@ -298,14 +298,14 @@ class ProductsController extends Controller
     {
 
         $requestData = $request->all();
-        
+
         $requestData['sku'] = empty($requestData['sku']) ? 0 : $requestData['sku'];
         $requestData['cost'] = empty($requestData['cost']) ? 0 : $requestData['cost'];
         $requestData['price'] = empty($requestData['price']) ? 0 : $requestData['price'];
         $requestData['wholesaler_price'] = empty($requestData['wholesaler_price']) ? 0 : $requestData['wholesaler_price'];
         $requestData['discount_type'] = empty($requestData['discount_type']) ? '0' : $requestData['discount_type'];
         $requestData['discount'] = empty($requestData['discount']) ? 0 : $requestData['discount'];
-        
+
         $requestData['brand_id'] = empty($requestData['brand_id']) ? 0 : $requestData['brand_id'];
         $requestData['is_variants'] = (@$requestData['is_variants']==1) ? 1 : 0;
         $requestData['meta_title'] = $requestData['meta_title'];
@@ -320,11 +320,11 @@ class ProductsController extends Controller
         $requestData['supplier_cost_3'] = empty($requestData['supplier_cost_3']) ? 0 : $requestData['supplier_cost_3'];
         $requestData['supplier_id_4'] = ($request->filled('supplier_id_4')) ? $request->supplier_id_4 : 0;
         $requestData['supplier_cost_4'] = empty($requestData['supplier_cost_4']) ? 0 : $requestData['supplier_cost_4'];
-        
+
         $product = Product::create($requestData);
 
         if($product){
-            
+
             // save new store product
             $store_id = 1;
             $new_quantity = $requestData['quantity'];
@@ -335,27 +335,27 @@ class ProductsController extends Controller
             $store_products = StoreProduct::create($store_product_create);
 
             updateProductStockByData($product->id, $store_id, $new_quantity, 1, 1, 0, 0, 'Add Product');
-            
+
             if ($request->filled('sub_category_id')) {
                 // save category products
                 $category_product['product_id'] = $product->id;
                 $category_product['category_id'] = $request->sub_category_id;
                 $category_product['type'] = 'subcategory';
-                
+
                 $category_products = CategoryProduct::firstOrNew($category_product);
                 $category_products->save();
             }
-            
+
             if ($request->filled('category_id')) {
                 // save category products
                 $category_product['product_id'] = $product->id;
                 $category_product['category_id'] = $request->category_id;
                 $category_product['type'] = 'category';
-                
+
                 $category_products = CategoryProduct::firstOrNew($category_product);
                 $category_products->save();
             }
-            
+
             if(!empty($request->tags)){
                 $tags = explode(',', $request->tags);
                 foreach($tags as $tag){
@@ -420,12 +420,12 @@ class ProductsController extends Controller
 
         $product->quantity = 0;
         $product->supplier_id_1 = $product->supplier_id;
-                
+
         $store_product_data = StoreProduct::where('product_id', $product->id)->first();
         if($store_product_data){
             $product->quantity = $store_product_data->quantity;
-        }       
-                
+        }
+
         $images = $product->product_images->sortBy('id');
         $brands = Brand::pluck('name','id')->prepend('Select Brand','');
         $shippings = Shipping::pluck('name','id');
@@ -447,7 +447,7 @@ class ProductsController extends Controller
         $id = decodeId($id);
 
         $rules['code'] = 'required|unique:products,code,'.$id;
-        $rules['item_code'] = 'required|unique:products,item_code,'.$id;
+        /*$rules['item_code'] = 'required|unique:products,item_code,'.$id;*/
         $rules['name'] = 'required';
         $rules['tax_rate_id'] = 'required';
         //$rules['barcode_symbology'] = 'required';
@@ -463,9 +463,9 @@ class ProductsController extends Controller
         $this->validate($request, $rules);
 
         $product = Product::findOrFail($id);
-        
+
         $requestData = $request->all();
-        
+
         if ($product) {
             // update store stock
 
@@ -498,8 +498,8 @@ class ProductsController extends Controller
                     }
 
         }
-        
-        
+
+
 
         $requestData['sku'] = empty($requestData['sku']) ? 0 : $requestData['sku'];
         $requestData['excluded_vat_cost'] = empty($requestData['excluded_vat_cost']) ? 0 : $requestData['excluded_vat_cost'];
@@ -527,9 +527,9 @@ class ProductsController extends Controller
         $requestData['supplier_id_4'] = ($request->filled('supplier_id_4')) ? $request->supplier_id_4 : 0;
         $requestData['supplier_cost_ex_vat_4'] = empty($requestData['supplier_cost_ex_vat_4']) ? 0 : $requestData['supplier_cost_ex_vat_4'];
         $requestData['supplier_cost_4'] = empty($requestData['supplier_cost_4']) ? 0 : $requestData['supplier_cost_4'];
-        
+
         $product->update($requestData);
-        
+
         // remove store products and category products and product stock and product tags
         CategoryProduct::where('product_id',$product->id)->delete();
         if ($request->filled('sub_category_id')) {
@@ -537,7 +537,7 @@ class ProductsController extends Controller
             $category_product['product_id'] = $product->id;
             $category_product['category_id'] = $request->sub_category_id;
             $category_product['type'] = 'subcategory';
-            
+
             $category_products = CategoryProduct::firstOrNew($category_product);
             $category_products->save();
         }
@@ -677,7 +677,7 @@ class ProductsController extends Controller
                     $category_product['product_id'] = $product->id;
                     $category_product['category_id'] = $parent_id;
                     $category_product['type'] = 'subcategory';
-                    
+
                     $category_products = CategoryProduct::firstOrNew($category_product);
                     $category_products->save();
                }
@@ -686,7 +686,7 @@ class ProductsController extends Controller
                 $category_product['product_id'] = $product->id;
                 $category_product['category_id'] = $category_id;
                 $category_product['type'] = 'category';
-                
+
                 $category_products = CategoryProduct::firstOrNew($category_product);
                 $category_products->save();
             }
@@ -758,7 +758,7 @@ class ProductsController extends Controller
         return response()->json(['result'=>$response], $status);
     }
 
-    private function deleteProduct($id) 
+    private function deleteProduct($id)
     {
         $product = Product::find($id);
 
@@ -766,11 +766,11 @@ class ProductsController extends Controller
             $product->delete();
 
             return true;
-        } 
-        
+        }
+
         return false;
     }
-    
+
     /**
      * getAllStoreCategories function
      *
@@ -1510,8 +1510,8 @@ class ProductsController extends Controller
 
         return response()->json(['result'=>$response], $status);
     }
-    
-    
+
+
     /**
      * Show the form for editing the specified resource.
      *
@@ -1522,7 +1522,7 @@ class ProductsController extends Controller
      public function makeCopy($id)
     {
         $id = decodeId($id);
-        
+
         $product = Product::with(
         [
             'product_tags'=> function ($query) {
@@ -1531,7 +1531,7 @@ class ProductsController extends Controller
             'category_products',
             'product_images'
         ])->findOrFail($id);
-         
+
         $productData = $product->toArray();
 
         $copyProduct = Product::create($productData);
@@ -1549,11 +1549,11 @@ class ProductsController extends Controller
                 $productImage = $productImage->toArray();
                 $copyProduct->product_images()->create($productImage);
             }
-            
+
             Session::flash('success', 'Product copy successfully created!');
             return redirect($this->resource.'/'.Hashids::encode($copyProduct->id).'/edit');
         }
-        
+
         Session::flash('error', 'Product copy not creat!');
         return redirect($this->resource);
     }

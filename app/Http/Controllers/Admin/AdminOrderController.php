@@ -784,8 +784,7 @@ class AdminOrderController extends Controller
 
 
         $couriers = Courier::pluck('name', 'id')->prepend('Select Courier', '');
-        $order = Transaction::with(['cart', 'purchasedItems.product.product_images'])->find($id);
-
+        $order = Transaction::with(['cart', 'user', 'purchasedItems.product.product_images'])->find($id);
          $vatCharges=TaxRate::select('rate')->where('id',1)->first();
         $vatCharges=(int)$vatCharges->rate;
         return view($this->resource . '/invoice-print', compact('order', 'couriers','vatCharges'));

@@ -222,9 +222,12 @@ class CustomerController extends Controller
             $wallets->where('date', '<=', request()->end_date);
         }
 
+        $startDate = request()->start_date;
+        $endDate = request()->end_date;
+
         $wallets = $wallets->orderBy('date', 'asc')->get();
 
-        return view('admin.customers.wallet-statment', compact('wallets', 'balance', 'user'));
+        return view('admin.customers.wallet-statment', compact('startDate', 'endDate', 'user', 'wallets', 'balance', 'user'));
     }
 
     public function deleteWalletStatment ($id) {

@@ -2,6 +2,13 @@
 
 @section('style')
     <style>
+        .bottom-line {
+            border: none;
+            border-top: 2px dotted black;
+            color: #fff;
+            height: 1px;
+            width: 100%;
+        }
         td.invoice ul li span {
             float: right;
         }
@@ -12,12 +19,12 @@
 
     @php
         $cart = @$order->cart;
-        
+
         $user = unserialize(@$cart->user_details);
         $cart_details = unserialize(@$cart->cart_details);
         //dd($cart_details);
         $trans_details = unserialize(@$order->trans_details);
-        
+
         $total_text = 'Due';
         if ($cart->payment_status == 'complete') {
             $total_text = 'Paid';
@@ -29,7 +36,7 @@
         $currency = getDefaultCurrency();
         $currency_code = @$currency->code;
         $tVat = 0;
-        
+
         $subtotal = 0;
         $courier = 0;
         $courierAmout = 0;
@@ -53,7 +60,7 @@
                         </div> --}}
 
                             {{-- <center>
-                    <h1>PROFORMA INVOICE</h1> 
+                    <h1>PROFORMA INVOICE</h1>
                     <p>(This is not an invoice)</p>
                  </center> --}}
 
@@ -113,7 +120,7 @@
                                 <p>
                                     <b>Account Balance Including This Proforma Invoice Value:</b> {{ getWalletAndOrderAmount($order->user_id, $order->amount) }}
                                 </p>
-                                
+
                                 <br>
                                 <p>ITEMS GIVEN ({{ count($cart_details) }} ITEMS) (QTY GIVEN : {{ $order->qty }})</p>
                         </div> --}}
@@ -124,7 +131,7 @@
                                         <tr>
                                             <th>Item No</th>
                                             <th>Item Description</th>
-                                            
+
                                             <th class="text-center">Qty</th>
                                             {{-- <th class="text-center">Unit Cost <br/> Ex-VAT</th> --}}
                                             {{-- <th class="text-center">VAT <br/> Rate</th> --}}
@@ -142,7 +149,7 @@
                                             $single_item = (array)$single_item;
                                                 $vat = 0;
                                                 $unit_price = $single_item['price'];
-                                                
+
                                                 $item_discount = @$single_item['item_discount'] ? $single_item['item_discount'] : 0;
                                                 //$item_sub_total = $item_sub_total - $item_discount;
                                                 $productName = $single_item['name'];
@@ -152,20 +159,20 @@
                                                     $productName = $dataRecieve['name'];
                                                     $price = $dataRecieve['price'];
                                                 }
-                                                
+
                                                 $vatRate = 20;
                                                 if (@$single_item['exclude_include_vat'] == 'ex') {
                                                     $add = 1.2;
-                                                
+
                                                     $exVatPrice = $price;
-                                                
+
                                                     $unit_price = $price = $single_item['price'] * $add;
                                                     $vat = $unit_price * (20 / 120);
                                                 } else {
                                                     $exVatPrice = $price - ($price * $vatRate) / 120;
                                                     $price = number_format($unit_price, 2);
                                                 }
-                                                
+
                                                 $item_sub_total = $unit_price * $single_item['quantity'];
                                                 $subtotal = $subtotal + $item_sub_total;
                                                 $netTotal = $item_sub_total - ($item_sub_total * $vatRate) / 120;
@@ -179,7 +186,7 @@
                                                 <td class="invoice">
                                                     <h5>{{ ucwords(strtolower($productName)) }}<strong>&nbsp;{{ $priceOptions !=='Standard Price'? "($priceOptions)":''}}</strong></h5>
                                                 </td>
-                                                 
+
                                                 <td class="text-center">{{ $single_item['quantity'] }}</td>
                                                 {{-- <td class="text-center">{{$currency_code}}{{ number_format($exVatPrice, 2) }}</td> --}}
                                                 {{-- <td class="text-center">{{ $vatRate }}%</td> --}}
@@ -298,6 +305,42 @@
                                     @endif
                                 </p>
                             </center>
+                            <hr class="bottom-line">
+                            <div class="row invoice-to" style="margin-top:10px; border: 1px solid black; margin: -2px">
+                                <div class="col-md-6 col-sm-6 pull-left">
+                                    <div class="border-rounded">
+                                        <div style="padding-top: 6px;padding-left: 10px">
+                                            <p style="padding-bottom:0;">
+                                                <b>Customer Information:</b><br>
+                                                Customer Name: {{$order->user->name}}<br>
+                                                Customer Address: {{$order->user->address}}<br>
+
+                                                <b>Delivery Received By: </b>-------------------
+
+                                            </p>
+                                        </div>
+                                        {{--<hr style="margin-top: 10px;margin-bottom: 10px;">
+                                        <div style="margin-left: 10px;">
+                                            <p>
+                                                <b>Bank Account Name:</b> VAPEOSONIC LTD<br>
+                                                <b>Bank Account No:</b> 19277217<br>
+                                                <b>Bank Sort Code:</b> 04-06-05<br>
+                                            <!--   <b>Payment Reference:</b>
+                                                {{ sixDigitInvoiceNumber($order->id, $quotation->invoice_no) }}
+                                                    -->
+                                            </p>
+                                        </div>--}}
+                                    </div>
+                                </div>
+                                <div class="col-md-6 col-sm-6 pull-right">
+
+                                    <div class="border-rounded">
+                                        <div style="padding-top: 6px;padding-left: 15px;">
+                                            <h4>Total Due Amount: {{ getWalletAndOrderAmount($order->user_id, 0) }}</h4>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </section>
                 </div>

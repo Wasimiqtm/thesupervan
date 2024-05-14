@@ -152,6 +152,15 @@ $(document).ready(function() {
                 footer: true,
                 exportOptions: {
                     columns: [ 0, 1, 2, 3, 4 ]
+                },
+                customize: function(win) {
+                    // Add user's name to the print header
+                    var header = '<h3>Wallet Statement Owner: {{ @$user->name }}</h3>';
+                    // Conditionally add date range if start and end dates are not null
+                    if ("{{ $startDate }}" && "{{ $endDate }}") {
+                        header += '<h3>Date Range: {{ $startDate }} to {{ $endDate }}</h3>';
+                    }
+                    $(win.document.body).prepend(header);
                 }
             }
         ]

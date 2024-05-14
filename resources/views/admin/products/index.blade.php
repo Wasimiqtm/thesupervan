@@ -75,7 +75,7 @@
                                         <th></th>
                                         <th>Image</th>
                                         <th>Bar Code</th>
-                                        <th>Item Code</th>
+                                        {{--<th>Item Code</th>--}}
                                         <th>Name</th>
                                         {{-- <th>Supplier</th> --}}
                                         {{-- <th>Brand</th> --}}
@@ -103,7 +103,7 @@
                                         <th></th>
                                         <th>Image</th>
                                         <th>Bar Code</th>
-                                        <th>Item Code</th>
+                                        {{--<th>Item Code</th>--}}
                                         <th>Name</th>
                                         {{-- <th>Supplier</th> --}}
                                         {{-- <th>Brand</th> --}}
@@ -203,10 +203,10 @@
                         data: 'code',
                         className: 'text-center'
                     },
-                    {
+                    /*{
                         data: 'item_code',
                         className: 'text-center'
-                    },
+                    },*/
                     {
                         data: 'name'
                     },

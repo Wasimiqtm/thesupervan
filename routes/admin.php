@@ -84,7 +84,7 @@ Route::group(['namespace' => 'Admin'], function () {
     Route::get('login-sale-reps/{id}', 'SaleRepController@login');
     Route::get('profile', 'ProfileController@index');
 
-    Route::get('get-users', 'ProfileController@getInvoiceList');
+    Route::get('get-users', 'ProfileControlladmin-orders/quotationer@getInvoiceList');
     Route::post('profile/update', 'ProfileController@update');
     Route::get('change-password', 'ProfileController@changePasswordView');
     Route::post('change-password', 'ProfileController@changePassword');
